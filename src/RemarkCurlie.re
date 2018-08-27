@@ -8,7 +8,7 @@ type bib =
     "authors": option(array(string)),
     "published": option(string),
   };
-type config('a) = {.. "db": list(bib)} as 'a;
+type config('a) = {.. "db": array(bib)} as 'a;
 exception MappingNotFound(string);
 
 let toMapping = (record: bib): Curlie.mapping => {
@@ -25,18 +25,18 @@ let bibToString = record => {
     switch (authors) {
     | None => None
     | Some(authors) =>
-      if (Array.length(authors) == 0) {
+      if (Js.Array.length(authors) == 0) {
         None;
       } else {
         Some(
-          Array.fold_left((acc, value) => acc ++ ", " ++ value, "", authors),
+          Js.Array.reduce((acc, value) => acc ++ ", " ++ value, "", authors),
         );
       }
     };
   let authors = joinAuthors(record##authors);
 
-  [title, authors, published, publisher]
-  |> List.fold_left(
+  [|title, authors, published, publisher|]
+  |> Js.Array.reduce(
        (acc, value) =>
          switch (value) {
          | None => acc
@@ -48,7 +48,7 @@ let bibToString = record => {
 
 let default = (ast: Unist.node, config: config('a)): Unist.node => {
   let db = config##db;
-  let mappings = List.map(toMapping, db);
+  let mappings = Js.Array.map(toMapping, db) |> Array.to_list;
 
   let visitor = (node: Unist.node): unit => {
     let href = node##url;
@@ -66,10 +66,12 @@ let default = (ast: Unist.node, config: config('a)): Unist.node => {
         )
       | Some(url) =>
         let (prefix, _) = curlie;
-        let bib = List.find(record => record##id == prefix, db);
+        let bib = Js.Array.find(record => record##id == prefix, db)
+          ->Belt.Option.map(bibToString)
+          ->Belt.Option.getWithDefault("");
 
         node##url #= url;
-        node##title #= bibToString(bib);
+        node##title #= bib;
       }
     };
   };
