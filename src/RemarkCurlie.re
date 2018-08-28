@@ -9,7 +9,6 @@ type bib =
     "published": option(string),
   };
 type config('a) = {.. "db": array(bib)} as 'a;
-exception MappingNotFound(string);
 
 let toMapping = (record: bib): Curlie.mapping => {
   prefix: record##id,
@@ -48,7 +47,7 @@ let bibToString = record => {
 
 let default = (ast: Unist.node, config: config('a)): Unist.node => {
   let db = config##db;
-  let mappings = Js.Array.map(toMapping, db) |> Array.to_list;
+  let mappings = Js.Array.map(toMapping, db);
 
   let visitor = (node: Unist.node): unit => {
     let href = node##url;
@@ -59,10 +58,8 @@ let default = (ast: Unist.node, config: config('a)): Unist.node => {
     | Some(curlie) =>
       switch (Curlie.expand(curlie, mappings)) {
       | None =>
-        raise(
-          MappingNotFound(
-            "Found a curlie " ++ href ++ " without an entry in the catalogue.",
-          ),
+        Js.Exn.raiseError(
+            "Found a curlie " ++ href ++ " without an entry in the catalogue."
         )
       | Some(url) =>
         let (prefix, _) = curlie;

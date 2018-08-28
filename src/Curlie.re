@@ -49,10 +49,10 @@ let fromString = (input: string): option(t) => {
  * Expansion is not smart. It doesn't deal with absolute paths in the right
  * way.
  */
-let expand = ((prefix, path), catalogue: list(mapping)): option(string) =>
-  switch (List.find(record => record.prefix == prefix, catalogue)) {
-  | exception Not_found => None
-  | record =>
+let expand = ((prefix, path), catalogue: array(mapping)): option(string) =>
+  switch (Js.Array.find(record => record.prefix == prefix, catalogue)) {
+  | None => None
+  | Some(record) =>
     switch (path) {
     | None => Some(record.url)
     | Some(path_) => Some(record.url ++ path_)

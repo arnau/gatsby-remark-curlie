@@ -46,12 +46,12 @@ describe("Curlie.fromString", () => {
 describe("Curlie.expand", () => {
   open Curlie;
 
-  let catalogue = [
+  let catalogue = [|
     {
       prefix: "example",
       url: "https://example.org/",
     },
-  ];
+  |];
 
   test("partial", () =>
     expect(expand(("example", None), catalogue))
