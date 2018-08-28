@@ -1,13 +1,12 @@
-type bib =
-  {
-    .
-    "id": string,
-    "url": string,
-    "title": option(string),
-    "publisher": option(string),
-    "authors": option(array(string)),
-    "published": option(string),
-  };
+type bib = {
+  .
+  "id": string,
+  "url": string,
+  "title": option(string),
+  "publisher": option(string),
+  "authors": option(array(string)),
+  "published": option(string),
+};
 type config('a) = {.. "db": array(bib)} as 'a;
 
 let toMapping = (record: bib): Curlie.mapping => {
@@ -20,16 +19,14 @@ let bibToString = record => {
   let title = record##title;
   let publisher = record##publisher;
   let published = record##published;
-  let joinAuthors = authors: option(string) =>
+  let joinAuthors = (authors: option(array(string))): option(string) =>
     switch (authors) {
     | None => None
     | Some(authors) =>
       if (Js.Array.length(authors) == 0) {
         None;
       } else {
-        Some(
-          Js.Array.reduce((acc, value) => acc ++ ", " ++ value, "", authors),
-        );
+        Some(Js.Array.joinWith(", ", authors));
       }
     };
   let authors = joinAuthors(record##authors);
@@ -59,11 +56,12 @@ let default = (ast: Unist.node, config: config('a)): Unist.node => {
       switch (Curlie.expand(curlie, mappings)) {
       | None =>
         Js.Exn.raiseError(
-            "Found a curlie " ++ href ++ " without an entry in the catalogue."
+          "Found a curlie " ++ href ++ " without an entry in the catalogue.",
         )
       | Some(url) =>
         let (prefix, _) = curlie;
-        let bib = Js.Array.find(record => record##id == prefix, db)
+        let bib =
+          Js.Array.find(record => record##id == prefix, db)
           ->Belt.Option.map(bibToString)
           ->Belt.Option.getWithDefault("");
 

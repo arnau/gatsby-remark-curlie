@@ -1540,9 +1540,7 @@ function bibToString(record) {
       if (authors$1.length === 0) {
         return undefined;
       } else {
-        return authors$1.reduce((function (acc, value) {
-                      return acc + (", " + value);
-                    }), "");
+        return authors$1.join(", ");
       }
     }
     
