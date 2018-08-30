@@ -1,13 +1,5 @@
 'use strict';
 
-function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
 var id = /* record */[/* contents */0];
 
 function caml_set_oo_id(b) {
@@ -1514,14 +1506,6 @@ var Curlie_bs = {
 	expand: expand_1
 };
 
-var RemarkCurlie_bs = createCommonjsModule(function (module, exports) {
-
-
-
-
-
-
-
 function toMapping(record) {
   return /* record */[
           /* prefix */record.id,
@@ -1560,7 +1544,7 @@ function bibToString(record) {
               }), "[" + (id + "]"));
 }
 
-function $$default(ast, config) {
+function plugin(ast, config) {
   var db = config.db;
   var mappings = db.map(toMapping);
   var visitor = function (node) {
@@ -1588,20 +1572,18 @@ function $$default(ast, config) {
   return ast;
 }
 
-exports.toMapping = toMapping;
-exports.bibToString = bibToString;
-exports.$$default = $$default;
-exports.default = $$default;
-exports.__esModule = true;
+var toMapping_1 = toMapping;
+var bibToString_1 = bibToString;
+var plugin_1 = plugin;
 /* unist-util-visit Not a pure module */
-});
 
-unwrapExports(RemarkCurlie_bs);
-var RemarkCurlie_bs_1 = RemarkCurlie_bs.toMapping;
-var RemarkCurlie_bs_2 = RemarkCurlie_bs.bibToString;
-var RemarkCurlie_bs_3 = RemarkCurlie_bs.$$default;
+var RemarkCurlie_bs = {
+	toMapping: toMapping_1,
+	bibToString: bibToString_1,
+	plugin: plugin_1
+};
 
 // Gatsby expects the plugin function to be exported directly.
-var gatsbyRemarkCurlie = RemarkCurlie_bs.default;
+var gatsbyRemarkCurlie = RemarkCurlie_bs.plugin;
 
 module.exports = gatsbyRemarkCurlie;

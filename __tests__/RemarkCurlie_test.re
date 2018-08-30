@@ -1,7 +1,7 @@
 open Jest;
 open Expect;
 
-describe("RemarkCurlie.default", () => {
+describe("RemarkCurlie.plugin", () => {
   open RemarkCurlie;
 
   let config = [%raw {|
@@ -25,7 +25,7 @@ describe("RemarkCurlie.default", () => {
       }
     |}];
 
-    expect(default(tree, config)) |> toEqual(expected)
+    expect(plugin(tree, config)) |> toEqual(expected)
   });
 
   /* test("full catalogue entry", () => { */
@@ -56,7 +56,7 @@ describe("RemarkCurlie.default", () => {
   /*     } */
   /*   |}]; */
 
-  /*   expect(default(tree, config)) |> toEqual(expected) */
+  /*   expect(plugin(tree, config)) |> toEqual(expected) */
   /* }); */
 
   test("bad catalogue throws", () => {
@@ -67,7 +67,7 @@ describe("RemarkCurlie.default", () => {
       }
     |}];
 
-    expect(() => default(tree, config)) |> toThrow
+    expect(() => plugin(tree, config)) |> toThrow
   });
 
   test("absolute url is untouched", () => {
@@ -78,7 +78,7 @@ describe("RemarkCurlie.default", () => {
       }
     |}];
 
-    expect(default(tree, config)) |> toEqual(tree)
+    expect(plugin(tree, config)) |> toEqual(tree)
   });
 
   test("absolute url is untouched (no protocol)", () => {
@@ -89,7 +89,7 @@ describe("RemarkCurlie.default", () => {
       }
     |}];
 
-    expect(default(tree, config)) |> toEqual(tree)
+    expect(plugin(tree, config)) |> toEqual(tree)
   });
 
   test("relative url is untouched", () => {
@@ -100,7 +100,7 @@ describe("RemarkCurlie.default", () => {
       }
     |}];
 
-    expect(default(tree, config)) |> toEqual(tree)
+    expect(plugin(tree, config)) |> toEqual(tree)
   });
 
   /* Jest chokes with this test */
@@ -128,6 +128,6 @@ describe("RemarkCurlie.default", () => {
   /*     } */
   /*   |}]; */
 
-  /*   expect(default(tree, config)) |> toEqual(expected) */
+  /*   expect(plugin(tree, config)) |> toEqual(expected) */
   /* }); */
 });

@@ -42,7 +42,8 @@ let bibToString = record => {
      );
 };
 
-let default = (ast: Unist.node, config: config('a)): Unist.node => {
+/** Gatsby plugin entrypoint */
+let plugin = (ast: Unist.node, config: config('a)): Unist.node => {
   let db = config##db;
   let mappings = Js.Array.map(toMapping, db);
 
