@@ -7,19 +7,23 @@
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
     "coverage": "nyc report --temp-directory=coverage",
-    "test": "yarn build && jest --coverage",
-    "prepublish": "yarn clean && yarn build && rollup -c",
+    "test": "$npm_execpath run build && jest --coverage",
+    "prepare": "$npm_execpath run clean && $npm_execpath run build && rollup -c",
     "format": "bsrefmt"
   },
-  "repository": "git@github.com:arnau/gatsby-remark-curlie.git",
+  "repository": "https://github.com/arnau/gatsby-remark-curlie",
   "keywords": [
     "bucklescript",
     "reason",
     "gatsby",
+    "gatsby-plugin",
     "remark"
   ],
   "author": "Arnau Siches",
   "license": "MIT",
+  "peerDependencies": {
+    "gatsby": "^2.0.0"
+  },
   "devDependencies": {
     "@glennsl/bs-jest": "^0.4.8",
     "bs-platform": "^5.0.5",
