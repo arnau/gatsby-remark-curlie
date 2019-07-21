@@ -13,13 +13,14 @@ describe("Curlie.fromString", () => {
   );
 
   test("full with /", () =>
-    expect(fromString("foo:bar/qux")) |> toEqual(Some(("foo", Some("bar/qux"))))
+    expect(fromString("foo:bar/qux"))
+    |> toEqual(Some(("foo", Some("bar/qux"))))
   );
 
   test("full with :", () =>
-    expect(fromString("foo:bar:qux")) |> toEqual(Some(("foo", Some("bar:qux"))))
+    expect(fromString("foo:bar:qux"))
+    |> toEqual(Some(("foo", Some("bar:qux"))))
   );
-
 
   test("full single /", () =>
     expect(fromString("foo:/")) |> toEqual(Some(("foo", Some("/"))))
@@ -37,7 +38,6 @@ describe("Curlie.fromString", () => {
     expect(fromString("a/b:bar")) |> toEqual(None)
   );
 
-
   test("a URL", () =>
     expect(fromString("https://example.org")) |> toEqual(None)
   );
@@ -47,10 +47,8 @@ describe("Curlie.expand", () => {
   open Curlie;
 
   let catalogue = [|
-    {
-      prefix: "example",
-      url: "https://example.org/",
-    },
+    {prefix: "example", url: "https://example.org/"},
+    {prefix: "example2", url: "https://example.org/far/"},
   |];
 
   test("partial", () =>
@@ -63,10 +61,21 @@ describe("Curlie.expand", () => {
     |> toEqual(Some("https://example.org/bar"))
   );
 
-  test("not found", () =>
-    expect(expand(("example2", None), catalogue))
-    |> toEqual(None)
+  test("combine paths", () =>
+    expect(expand(("example2", Some("bar/qux")), catalogue))
+    |> toEqual(Some("https://example.org/far/bar/qux"))
   );
 
+  test("not found", () =>
+    expect(expand(("nothere", None), catalogue)) |> toEqual(None)
+  );
 });
 
+describe("Curlie.join", () =>
+  Curlie.(
+    test("baseline", () =>
+      expect(join("https://foo.io/qux", "/bar"))
+      |> toEqual("https://foo.io/bar")
+    )
+  )
+);

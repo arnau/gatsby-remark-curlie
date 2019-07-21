@@ -33,6 +33,7 @@
     "rollup-plugin-node-resolve": "^5.2.0"
   },
   "dependencies": {
+    "bs-webapi": "^0.15.2",
     "unist-util-visit": "^1.4.1"
   }
 }

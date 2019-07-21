@@ -44,10 +44,15 @@ let fromString = (input: string): option(t) => {
   };
 };
 
+let join = (surl: string, path: string): string => {
+  open Webapi;
+
+  let url = Url.makeWithBase(path, surl);
+
+  Url.href(url);
+};
+
 /** Expands a Curlie into a Url based on the given catalogue.
- *
- * Expansion is not smart. It doesn't deal with absolute paths in the right
- * way.
  */
 let expand = ((prefix, path), catalogue: array(mapping)): option(string) =>
   switch (Js.Array.find(record => record.prefix == prefix, catalogue)) {
@@ -55,6 +60,6 @@ let expand = ((prefix, path), catalogue: array(mapping)): option(string) =>
   | Some(record) =>
     switch (path) {
     | None => Some(record.url)
-    | Some(path_) => Some(record.url ++ path_)
+    | Some(path_) => Some(join(record.url, path_))
     }
   };
