@@ -1,5 +1,103 @@
 'use strict';
 
+var undefinedHeader = /* array */[];
+
+function some(x) {
+  if (x === undefined) {
+    var block = /* tuple */[
+      undefinedHeader,
+      0
+    ];
+    block.tag = 256;
+    return block;
+  } else if (x !== null && x[0] === undefinedHeader) {
+    var nid = x[1] + 1 | 0;
+    var block$1 = /* tuple */[
+      undefinedHeader,
+      nid
+    ];
+    block$1.tag = 256;
+    return block$1;
+  } else {
+    return x;
+  }
+}
+
+function nullable_to_opt(x) {
+  if (x === null || x === undefined) {
+    return undefined;
+  } else {
+    return some(x);
+  }
+}
+
+function undefined_to_opt(x) {
+  if (x === undefined) {
+    return undefined;
+  } else {
+    return some(x);
+  }
+}
+
+function null_to_opt(x) {
+  if (x === null) {
+    return undefined;
+  } else {
+    return some(x);
+  }
+}
+
+function valFromOption(x) {
+  if (x !== null && x[0] === undefinedHeader) {
+    var depth = x[1];
+    if (depth === 0) {
+      return undefined;
+    } else {
+      return /* tuple */[
+              undefinedHeader,
+              depth - 1 | 0
+            ];
+    }
+  } else {
+    return x;
+  }
+}
+
+function option_get(x) {
+  if (x === undefined) {
+    return undefined;
+  } else {
+    return valFromOption(x);
+  }
+}
+
+function option_get_unwrap(x) {
+  if (x === undefined) {
+    return undefined;
+  } else {
+    return valFromOption(x)[1];
+  }
+}
+
+var nullable_to_opt_1 = nullable_to_opt;
+var undefined_to_opt_1 = undefined_to_opt;
+var null_to_opt_1 = null_to_opt;
+var valFromOption_1 = valFromOption;
+var some_1 = some;
+var option_get_1 = option_get;
+var option_get_unwrap_1 = option_get_unwrap;
+/* No side effect */
+
+var caml_option = {
+	nullable_to_opt: nullable_to_opt_1,
+	undefined_to_opt: undefined_to_opt_1,
+	null_to_opt: null_to_opt_1,
+	valFromOption: valFromOption_1,
+	some: some_1,
+	option_get: option_get_1,
+	option_get_unwrap: option_get_unwrap_1
+};
+
 var id = /* record */[/* contents */0];
 
 function caml_set_oo_id(b) {
@@ -8,13 +106,13 @@ function caml_set_oo_id(b) {
   return b;
 }
 
-function get_id() {
+function caml_fresh_oo_id(param) {
   id[0] += 1;
   return id[0];
 }
 
 function create(str) {
-  var v_001 = get_id(/* () */0);
+  var v_001 = caml_fresh_oo_id();
   var v = /* tuple */[
     str,
     v_001
@@ -23,7 +121,7 @@ function create(str) {
   return v;
 }
 
-function isCamlExceptionOrOpenVariant(e) {
+function caml_is_extension(e) {
   if (e === undefined) {
     return false;
   } else if (e.tag === 248) {
@@ -39,22 +137,22 @@ function isCamlExceptionOrOpenVariant(e) {
 }
 
 var caml_set_oo_id_1 = caml_set_oo_id;
-var get_id_1 = get_id;
+var caml_fresh_oo_id_1 = caml_fresh_oo_id;
 var create_1 = create;
-var isCamlExceptionOrOpenVariant_1 = isCamlExceptionOrOpenVariant;
+var caml_is_extension_1 = caml_is_extension;
 /* No side effect */
 
 var caml_exceptions = {
 	caml_set_oo_id: caml_set_oo_id_1,
-	get_id: get_id_1,
+	caml_fresh_oo_id: caml_fresh_oo_id_1,
 	create: create_1,
-	isCamlExceptionOrOpenVariant: isCamlExceptionOrOpenVariant_1
+	caml_is_extension: caml_is_extension_1
 };
 
-var $$Error = caml_exceptions.create("Js_exn.Error");
+var $$Error = caml_exceptions.create("Caml_js_exceptions.Error");
 
 function internalToOCamlException(e) {
-  if (caml_exceptions.isCamlExceptionOrOpenVariant(e)) {
+  if (caml_exceptions.caml_is_extension(e)) {
     return e;
   } else {
     return [
@@ -63,6 +161,24 @@ function internalToOCamlException(e) {
           ];
   }
 }
+
+function caml_as_js_exn(exn) {
+  if (exn[0] === $$Error) {
+    return caml_option.some(exn[1]);
+  }
+  
+}
+
+var $$Error_1 = $$Error;
+var internalToOCamlException_1 = internalToOCamlException;
+var caml_as_js_exn_1 = caml_as_js_exn;
+/* No side effect */
+
+var caml_js_exceptions = {
+	$$Error: $$Error_1,
+	internalToOCamlException: internalToOCamlException_1,
+	caml_as_js_exn: caml_as_js_exn_1
+};
 
 function raiseError(str) {
   throw new Error(str);
@@ -92,8 +208,9 @@ function raiseUriError(str) {
   throw new URIError(str);
 }
 
-var $$Error_1 = $$Error;
-var internalToOCamlException_1 = internalToOCamlException;
+var $$Error$1 = caml_js_exceptions.$$Error;
+
+var $$Error$2 = $$Error$1;
 var raiseError_1 = raiseError;
 var raiseEvalError_1 = raiseEvalError;
 var raiseRangeError_1 = raiseRangeError;
@@ -104,8 +221,7 @@ var raiseUriError_1 = raiseUriError;
 /* No side effect */
 
 var js_exn = {
-	$$Error: $$Error_1,
-	internalToOCamlException: internalToOCamlException_1,
+	$$Error: $$Error$2,
 	raiseError: raiseError_1,
 	raiseEvalError: raiseEvalError_1,
 	raiseRangeError: raiseRangeError_1,
@@ -286,10 +402,9 @@ function caml_array_set(xs, index, newval) {
           caml_builtin_exceptions.invalid_argument,
           "index out of bounds"
         ];
-  } else {
-    xs[index] = newval;
-    return /* () */0;
   }
+  xs[index] = newval;
+  return /* () */0;
 }
 
 function caml_array_get(xs, index) {
@@ -298,9 +413,8 @@ function caml_array_get(xs, index) {
           caml_builtin_exceptions.invalid_argument,
           "index out of bounds"
         ];
-  } else {
-    return xs[index];
   }
+  return xs[index];
 }
 
 function caml_make_vect(len, init) {
@@ -362,15 +476,15 @@ function app(_f, _args) {
   while(true) {
     var args = _args;
     var f = _f;
-    var arity = f.length;
-    var arity$1 = arity === 0 ? 1 : arity;
+    var init_arity = f.length;
+    var arity = init_arity === 0 ? 1 : init_arity;
     var len = args.length;
-    var d = arity$1 - len | 0;
+    var d = arity - len | 0;
     if (d === 0) {
       return f.apply(null, args);
     } else if (d < 0) {
-      _args = caml_array.caml_array_sub(args, arity$1, -d | 0);
-      _f = f.apply(null, caml_array.caml_array_sub(args, 0, arity$1));
+      _args = caml_array.caml_array_sub(args, arity, -d | 0);
+      _f = f.apply(null, caml_array.caml_array_sub(args, 0, arity));
       continue ;
     } else {
       return (function(f,args){
@@ -382,39 +496,35 @@ function app(_f, _args) {
   }}
 
 function curry_1(o, a0, arity) {
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[a0]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          return o(a0);
-      case 2 : 
-          return (function (param) {
-              return o(a0, param);
-            });
-      case 3 : 
-          return (function (param, param$1) {
-              return o(a0, param, param$1);
-            });
-      case 4 : 
-          return (function (param, param$1, param$2) {
-              return o(a0, param, param$1, param$2);
-            });
-      case 5 : 
-          return (function (param, param$1, param$2, param$3) {
-              return o(a0, param, param$1, param$2, param$3);
-            });
-      case 6 : 
-          return (function (param, param$1, param$2, param$3, param$4) {
-              return o(a0, param, param$1, param$2, param$3, param$4);
-            });
-      case 7 : 
-          return (function (param, param$1, param$2, param$3, param$4, param$5) {
-              return o(a0, param, param$1, param$2, param$3, param$4, param$5);
-            });
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return o(a0);
+    case 2 : 
+        return (function (param) {
+            return o(a0, param);
+          });
+    case 3 : 
+        return (function (param, param$1) {
+            return o(a0, param, param$1);
+          });
+    case 4 : 
+        return (function (param, param$1, param$2) {
+            return o(a0, param, param$1, param$2);
+          });
+    case 5 : 
+        return (function (param, param$1, param$2, param$3) {
+            return o(a0, param, param$1, param$2, param$3);
+          });
+    case 6 : 
+        return (function (param, param$1, param$2, param$3, param$4) {
+            return o(a0, param, param$1, param$2, param$3, param$4);
+          });
+    case 7 : 
+        return (function (param, param$1, param$2, param$3, param$4, param$5) {
+            return o(a0, param, param$1, param$2, param$3, param$4, param$5);
+          });
+    default:
+      return app(o, /* array */[a0]);
   }
 }
 
@@ -439,40 +549,36 @@ function __1(o) {
 }
 
 function curry_2(o, a0, a1, arity) {
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[
-                a0,
-                a1
-              ]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          return app(o(a0), /* array */[a1]);
-      case 2 : 
-          return o(a0, a1);
-      case 3 : 
-          return (function (param) {
-              return o(a0, a1, param);
-            });
-      case 4 : 
-          return (function (param, param$1) {
-              return o(a0, a1, param, param$1);
-            });
-      case 5 : 
-          return (function (param, param$1, param$2) {
-              return o(a0, a1, param, param$1, param$2);
-            });
-      case 6 : 
-          return (function (param, param$1, param$2, param$3) {
-              return o(a0, a1, param, param$1, param$2, param$3);
-            });
-      case 7 : 
-          return (function (param, param$1, param$2, param$3, param$4) {
-              return o(a0, a1, param, param$1, param$2, param$3, param$4);
-            });
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return app(o(a0), /* array */[a1]);
+    case 2 : 
+        return o(a0, a1);
+    case 3 : 
+        return (function (param) {
+            return o(a0, a1, param);
+          });
+    case 4 : 
+        return (function (param, param$1) {
+            return o(a0, a1, param, param$1);
+          });
+    case 5 : 
+        return (function (param, param$1, param$2) {
+            return o(a0, a1, param, param$1, param$2);
+          });
+    case 6 : 
+        return (function (param, param$1, param$2, param$3) {
+            return o(a0, a1, param, param$1, param$2, param$3);
+          });
+    case 7 : 
+        return (function (param, param$1, param$2, param$3, param$4) {
+            return o(a0, a1, param, param$1, param$2, param$3, param$4);
+          });
+    default:
+      return app(o, /* array */[
+                  a0,
+                  a1
+                ]);
   }
 }
 
@@ -497,49 +603,39 @@ function __2(o) {
 }
 
 function curry_3(o, a0, a1, a2, arity) {
-  var exit = 0;
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[
-                a0,
-                a1,
-                a2
-              ]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          exit = 1;
-          break;
-      case 2 : 
-          return app(o(a0, a1), /* array */[a2]);
-      case 3 : 
-          return o(a0, a1, a2);
-      case 4 : 
-          return (function (param) {
-              return o(a0, a1, a2, param);
-            });
-      case 5 : 
-          return (function (param, param$1) {
-              return o(a0, a1, a2, param, param$1);
-            });
-      case 6 : 
-          return (function (param, param$1, param$2) {
-              return o(a0, a1, a2, param, param$1, param$2);
-            });
-      case 7 : 
-          return (function (param, param$1, param$2, param$3) {
-              return o(a0, a1, a2, param, param$1, param$2, param$3);
-            });
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return app(o(a0), /* array */[
+                    a1,
+                    a2
+                  ]);
+    case 2 : 
+        return app(o(a0, a1), /* array */[a2]);
+    case 3 : 
+        return o(a0, a1, a2);
+    case 4 : 
+        return (function (param) {
+            return o(a0, a1, a2, param);
+          });
+    case 5 : 
+        return (function (param, param$1) {
+            return o(a0, a1, a2, param, param$1);
+          });
+    case 6 : 
+        return (function (param, param$1, param$2) {
+            return o(a0, a1, a2, param, param$1, param$2);
+          });
+    case 7 : 
+        return (function (param, param$1, param$2, param$3) {
+            return o(a0, a1, a2, param, param$1, param$2, param$3);
+          });
+    default:
+      return app(o, /* array */[
+                  a0,
+                  a1,
+                  a2
+                ]);
   }
-  if (exit === 1) {
-    return app(o(a0), /* array */[
-                a1,
-                a2
-              ]);
-  }
-  
 }
 
 function _3(o, a0, a1, a2) {
@@ -563,52 +659,42 @@ function __3(o) {
 }
 
 function curry_4(o, a0, a1, a2, a3, arity) {
-  var exit = 0;
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[
-                a0,
-                a1,
-                a2,
-                a3
-              ]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          exit = 1;
-          break;
-      case 2 : 
-          return app(o(a0, a1), /* array */[
-                      a2,
-                      a3
-                    ]);
-      case 3 : 
-          return app(o(a0, a1, a2), /* array */[a3]);
-      case 4 : 
-          return o(a0, a1, a2, a3);
-      case 5 : 
-          return (function (param) {
-              return o(a0, a1, a2, a3, param);
-            });
-      case 6 : 
-          return (function (param, param$1) {
-              return o(a0, a1, a2, a3, param, param$1);
-            });
-      case 7 : 
-          return (function (param, param$1, param$2) {
-              return o(a0, a1, a2, a3, param, param$1, param$2);
-            });
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return app(o(a0), /* array */[
+                    a1,
+                    a2,
+                    a3
+                  ]);
+    case 2 : 
+        return app(o(a0, a1), /* array */[
+                    a2,
+                    a3
+                  ]);
+    case 3 : 
+        return app(o(a0, a1, a2), /* array */[a3]);
+    case 4 : 
+        return o(a0, a1, a2, a3);
+    case 5 : 
+        return (function (param) {
+            return o(a0, a1, a2, a3, param);
+          });
+    case 6 : 
+        return (function (param, param$1) {
+            return o(a0, a1, a2, a3, param, param$1);
+          });
+    case 7 : 
+        return (function (param, param$1, param$2) {
+            return o(a0, a1, a2, a3, param, param$1, param$2);
+          });
+    default:
+      return app(o, /* array */[
+                  a0,
+                  a1,
+                  a2,
+                  a3
+                ]);
   }
-  if (exit === 1) {
-    return app(o(a0), /* array */[
-                a1,
-                a2,
-                a3
-              ]);
-  }
-  
 }
 
 function _4(o, a0, a1, a2, a3) {
@@ -632,56 +718,46 @@ function __4(o) {
 }
 
 function curry_5(o, a0, a1, a2, a3, a4, arity) {
-  var exit = 0;
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[
-                a0,
-                a1,
-                a2,
-                a3,
-                a4
-              ]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          exit = 1;
-          break;
-      case 2 : 
-          return app(o(a0, a1), /* array */[
-                      a2,
-                      a3,
-                      a4
-                    ]);
-      case 3 : 
-          return app(o(a0, a1, a2), /* array */[
-                      a3,
-                      a4
-                    ]);
-      case 4 : 
-          return app(o(a0, a1, a2, a3), /* array */[a4]);
-      case 5 : 
-          return o(a0, a1, a2, a3, a4);
-      case 6 : 
-          return (function (param) {
-              return o(a0, a1, a2, a3, a4, param);
-            });
-      case 7 : 
-          return (function (param, param$1) {
-              return o(a0, a1, a2, a3, a4, param, param$1);
-            });
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return app(o(a0), /* array */[
+                    a1,
+                    a2,
+                    a3,
+                    a4
+                  ]);
+    case 2 : 
+        return app(o(a0, a1), /* array */[
+                    a2,
+                    a3,
+                    a4
+                  ]);
+    case 3 : 
+        return app(o(a0, a1, a2), /* array */[
+                    a3,
+                    a4
+                  ]);
+    case 4 : 
+        return app(o(a0, a1, a2, a3), /* array */[a4]);
+    case 5 : 
+        return o(a0, a1, a2, a3, a4);
+    case 6 : 
+        return (function (param) {
+            return o(a0, a1, a2, a3, a4, param);
+          });
+    case 7 : 
+        return (function (param, param$1) {
+            return o(a0, a1, a2, a3, a4, param, param$1);
+          });
+    default:
+      return app(o, /* array */[
+                  a0,
+                  a1,
+                  a2,
+                  a3,
+                  a4
+                ]);
   }
-  if (exit === 1) {
-    return app(o(a0), /* array */[
-                a1,
-                a2,
-                a3,
-                a4
-              ]);
-  }
-  
 }
 
 function _5(o, a0, a1, a2, a3, a4) {
@@ -705,61 +781,51 @@ function __5(o) {
 }
 
 function curry_6(o, a0, a1, a2, a3, a4, a5, arity) {
-  var exit = 0;
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[
-                a0,
-                a1,
-                a2,
-                a3,
-                a4,
-                a5
-              ]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          exit = 1;
-          break;
-      case 2 : 
-          return app(o(a0, a1), /* array */[
-                      a2,
-                      a3,
-                      a4,
-                      a5
-                    ]);
-      case 3 : 
-          return app(o(a0, a1, a2), /* array */[
-                      a3,
-                      a4,
-                      a5
-                    ]);
-      case 4 : 
-          return app(o(a0, a1, a2, a3), /* array */[
-                      a4,
-                      a5
-                    ]);
-      case 5 : 
-          return app(o(a0, a1, a2, a3, a4), /* array */[a5]);
-      case 6 : 
-          return o(a0, a1, a2, a3, a4, a5);
-      case 7 : 
-          return (function (param) {
-              return o(a0, a1, a2, a3, a4, a5, param);
-            });
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return app(o(a0), /* array */[
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5
+                  ]);
+    case 2 : 
+        return app(o(a0, a1), /* array */[
+                    a2,
+                    a3,
+                    a4,
+                    a5
+                  ]);
+    case 3 : 
+        return app(o(a0, a1, a2), /* array */[
+                    a3,
+                    a4,
+                    a5
+                  ]);
+    case 4 : 
+        return app(o(a0, a1, a2, a3), /* array */[
+                    a4,
+                    a5
+                  ]);
+    case 5 : 
+        return app(o(a0, a1, a2, a3, a4), /* array */[a5]);
+    case 6 : 
+        return o(a0, a1, a2, a3, a4, a5);
+    case 7 : 
+        return (function (param) {
+            return o(a0, a1, a2, a3, a4, a5, param);
+          });
+    default:
+      return app(o, /* array */[
+                  a0,
+                  a1,
+                  a2,
+                  a3,
+                  a4,
+                  a5
+                ]);
   }
-  if (exit === 1) {
-    return app(o(a0), /* array */[
-                a1,
-                a2,
-                a3,
-                a4,
-                a5
-              ]);
-  }
-  
 }
 
 function _6(o, a0, a1, a2, a3, a4, a5) {
@@ -783,67 +849,57 @@ function __6(o) {
 }
 
 function curry_7(o, a0, a1, a2, a3, a4, a5, a6, arity) {
-  var exit = 0;
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[
-                a0,
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6
-              ]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          exit = 1;
-          break;
-      case 2 : 
-          return app(o(a0, a1), /* array */[
-                      a2,
-                      a3,
-                      a4,
-                      a5,
-                      a6
-                    ]);
-      case 3 : 
-          return app(o(a0, a1, a2), /* array */[
-                      a3,
-                      a4,
-                      a5,
-                      a6
-                    ]);
-      case 4 : 
-          return app(o(a0, a1, a2, a3), /* array */[
-                      a4,
-                      a5,
-                      a6
-                    ]);
-      case 5 : 
-          return app(o(a0, a1, a2, a3, a4), /* array */[
-                      a5,
-                      a6
-                    ]);
-      case 6 : 
-          return app(o(a0, a1, a2, a3, a4, a5), /* array */[a6]);
-      case 7 : 
-          return o(a0, a1, a2, a3, a4, a5, a6);
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return app(o(a0), /* array */[
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6
+                  ]);
+    case 2 : 
+        return app(o(a0, a1), /* array */[
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6
+                  ]);
+    case 3 : 
+        return app(o(a0, a1, a2), /* array */[
+                    a3,
+                    a4,
+                    a5,
+                    a6
+                  ]);
+    case 4 : 
+        return app(o(a0, a1, a2, a3), /* array */[
+                    a4,
+                    a5,
+                    a6
+                  ]);
+    case 5 : 
+        return app(o(a0, a1, a2, a3, a4), /* array */[
+                    a5,
+                    a6
+                  ]);
+    case 6 : 
+        return app(o(a0, a1, a2, a3, a4, a5), /* array */[a6]);
+    case 7 : 
+        return o(a0, a1, a2, a3, a4, a5, a6);
+    default:
+      return app(o, /* array */[
+                  a0,
+                  a1,
+                  a2,
+                  a3,
+                  a4,
+                  a5,
+                  a6
+                ]);
   }
-  if (exit === 1) {
-    return app(o(a0), /* array */[
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6
-              ]);
-  }
-  
 }
 
 function _7(o, a0, a1, a2, a3, a4, a5, a6) {
@@ -867,76 +923,66 @@ function __7(o) {
 }
 
 function curry_8(o, a0, a1, a2, a3, a4, a5, a6, a7, arity) {
-  var exit = 0;
-  if (arity > 7 || arity < 0) {
-    return app(o, /* array */[
-                a0,
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6,
-                a7
-              ]);
-  } else {
-    switch (arity) {
-      case 0 : 
-      case 1 : 
-          exit = 1;
-          break;
-      case 2 : 
-          return app(o(a0, a1), /* array */[
-                      a2,
-                      a3,
-                      a4,
-                      a5,
-                      a6,
-                      a7
-                    ]);
-      case 3 : 
-          return app(o(a0, a1, a2), /* array */[
-                      a3,
-                      a4,
-                      a5,
-                      a6,
-                      a7
-                    ]);
-      case 4 : 
-          return app(o(a0, a1, a2, a3), /* array */[
-                      a4,
-                      a5,
-                      a6,
-                      a7
-                    ]);
-      case 5 : 
-          return app(o(a0, a1, a2, a3, a4), /* array */[
-                      a5,
-                      a6,
-                      a7
-                    ]);
-      case 6 : 
-          return app(o(a0, a1, a2, a3, a4, a5), /* array */[
-                      a6,
-                      a7
-                    ]);
-      case 7 : 
-          return app(o(a0, a1, a2, a3, a4, a5, a6), /* array */[a7]);
-      
-    }
+  switch (arity) {
+    case 1 : 
+        return app(o(a0), /* array */[
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7
+                  ]);
+    case 2 : 
+        return app(o(a0, a1), /* array */[
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7
+                  ]);
+    case 3 : 
+        return app(o(a0, a1, a2), /* array */[
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7
+                  ]);
+    case 4 : 
+        return app(o(a0, a1, a2, a3), /* array */[
+                    a4,
+                    a5,
+                    a6,
+                    a7
+                  ]);
+    case 5 : 
+        return app(o(a0, a1, a2, a3, a4), /* array */[
+                    a5,
+                    a6,
+                    a7
+                  ]);
+    case 6 : 
+        return app(o(a0, a1, a2, a3, a4, a5), /* array */[
+                    a6,
+                    a7
+                  ]);
+    case 7 : 
+        return app(o(a0, a1, a2, a3, a4, a5, a6), /* array */[a7]);
+    default:
+      return app(o, /* array */[
+                  a0,
+                  a1,
+                  a2,
+                  a3,
+                  a4,
+                  a5,
+                  a6,
+                  a7
+                ]);
   }
-  if (exit === 1) {
-    return app(o(a0), /* array */[
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6,
-                a7
-              ]);
-  }
-  
 }
 
 function _8(o, a0, a1, a2, a3, a4, a5, a6, a7) {
@@ -1014,107 +1060,9 @@ var curry = {
 	__8: __8_1
 };
 
-var undefinedHeader = /* array */[];
-
-function some(x) {
-  if (x === undefined) {
-    var block = /* tuple */[
-      undefinedHeader,
-      0
-    ];
-    block.tag = 256;
-    return block;
-  } else if (x !== null && x[0] === undefinedHeader) {
-    var nid = x[1] + 1 | 0;
-    var block$1 = /* tuple */[
-      undefinedHeader,
-      nid
-    ];
-    block$1.tag = 256;
-    return block$1;
-  } else {
-    return x;
-  }
-}
-
-function nullable_to_opt(x) {
-  if (x === null || x === undefined) {
-    return undefined;
-  } else {
-    return some(x);
-  }
-}
-
-function undefined_to_opt(x) {
-  if (x === undefined) {
-    return undefined;
-  } else {
-    return some(x);
-  }
-}
-
-function null_to_opt(x) {
-  if (x === null) {
-    return undefined;
-  } else {
-    return some(x);
-  }
-}
-
-function valFromOption(x) {
-  if (x !== null && x[0] === undefinedHeader) {
-    var depth = x[1];
-    if (depth === 0) {
-      return undefined;
-    } else {
-      return /* tuple */[
-              undefinedHeader,
-              depth - 1 | 0
-            ];
-    }
-  } else {
-    return x;
-  }
-}
-
-function option_get(x) {
-  if (x === undefined) {
-    return undefined;
-  } else {
-    return valFromOption(x);
-  }
-}
-
-function option_get_unwrap(x) {
-  if (x === undefined) {
-    return undefined;
-  } else {
-    return valFromOption(x)[1];
-  }
-}
-
-var nullable_to_opt_1 = nullable_to_opt;
-var undefined_to_opt_1 = undefined_to_opt;
-var null_to_opt_1 = null_to_opt;
-var valFromOption_1 = valFromOption;
-var some_1 = some;
-var option_get_1 = option_get;
-var option_get_unwrap_1 = option_get_unwrap;
-/* No side effect */
-
-var js_primitive = {
-	nullable_to_opt: nullable_to_opt_1,
-	undefined_to_opt: undefined_to_opt_1,
-	null_to_opt: null_to_opt_1,
-	valFromOption: valFromOption_1,
-	some: some_1,
-	option_get: option_get_1,
-	option_get_unwrap: option_get_unwrap_1
-};
-
 function getExn(param) {
   if (param !== undefined) {
-    return js_primitive.valFromOption(param);
+    return caml_option.valFromOption(param);
   } else {
     throw new Error("getExn");
   }
@@ -1122,7 +1070,7 @@ function getExn(param) {
 
 function mapWithDefaultU(opt, $$default, f) {
   if (opt !== undefined) {
-    return f(js_primitive.valFromOption(opt));
+    return f(caml_option.valFromOption(opt));
   } else {
     return $$default;
   }
@@ -1134,7 +1082,7 @@ function mapWithDefault(opt, $$default, f) {
 
 function mapU(opt, f) {
   if (opt !== undefined) {
-    return js_primitive.some(f(js_primitive.valFromOption(opt)));
+    return caml_option.some(f(caml_option.valFromOption(opt)));
   }
   
 }
@@ -1145,7 +1093,7 @@ function map(opt, f) {
 
 function flatMapU(opt, f) {
   if (opt !== undefined) {
-    return f(js_primitive.valFromOption(opt));
+    return f(caml_option.valFromOption(opt));
   }
   
 }
@@ -1156,7 +1104,7 @@ function flatMap(opt, f) {
 
 function getWithDefault(opt, $$default) {
   if (opt !== undefined) {
-    return js_primitive.valFromOption(opt);
+    return caml_option.valFromOption(opt);
   } else {
     return $$default;
   }
@@ -1173,7 +1121,7 @@ function isNone(x) {
 function eqU(a, b, f) {
   if (a !== undefined) {
     if (b !== undefined) {
-      return f(js_primitive.valFromOption(a), js_primitive.valFromOption(b));
+      return f(caml_option.valFromOption(a), caml_option.valFromOption(b));
     } else {
       return false;
     }
@@ -1189,7 +1137,7 @@ function eq(a, b, f) {
 function cmpU(a, b, f) {
   if (a !== undefined) {
     if (b !== undefined) {
-      return f(js_primitive.valFromOption(a), js_primitive.valFromOption(b));
+      return f(caml_option.valFromOption(a), caml_option.valFromOption(b));
     } else {
       return 1;
     }
@@ -1237,39 +1185,7 @@ var belt_Option = {
 	cmp: cmp_1
 };
 
-/* eslint-disable max-params */
-
-/* Expose. */
-var unistUtilIs = is;
-
-/* Assert if `test` passes for `node`.
- * When a `parent` node is known the `index` of node */
-function is(test, node, index, parent, context) {
-  var hasParent = parent !== null && parent !== undefined;
-  var hasIndex = index !== null && index !== undefined;
-  var check = convert(test);
-
-  if (
-    hasIndex &&
-    (typeof index !== 'number' || index < 0 || index === Infinity)
-  ) {
-    throw new Error('Expected positive finite index or child node')
-  }
-
-  if (hasParent && (!is(null, parent) || !parent.children)) {
-    throw new Error('Expected parent node')
-  }
-
-  if (!node || !node.type || typeof node.type !== 'string') {
-    return false
-  }
-
-  if (hasParent !== hasIndex) {
-    throw new Error('Expected both parent and index')
-  }
-
-  return Boolean(check.call(context, node, index, parent))
-}
+var convert_1 = convert;
 
 function convert(test) {
   if (typeof test === 'string') {
@@ -1303,8 +1219,8 @@ function convertAll(tests) {
   return results
 }
 
-/* Utility assert each property in `test` is represented
- * in `node`, and each values are strictly equal. */
+// Utility assert each property in `test` is represented in `node`, and each
+// values are strictly equal.
 function matchesFactory(test) {
   return matches
 
@@ -1340,8 +1256,8 @@ function anyFactory(tests) {
   }
 }
 
-/* Utility to convert a string into a function which checks
- * a given node’s type for said string. */
+// Utility to convert a string into a function which checks a given node’s type
+// for said string.
 function typeFactory(test) {
   return type
 
@@ -1350,7 +1266,7 @@ function typeFactory(test) {
   }
 }
 
-/* Utility to return true. */
+// Utility to return true.
 function ok() {
   return true
 }
@@ -1368,28 +1284,34 @@ visitParents.SKIP = SKIP;
 visitParents.EXIT = EXIT;
 
 function visitParents(tree, test, visitor, reverse) {
+  var is;
+
   if (typeof test === 'function' && typeof visitor !== 'function') {
     reverse = visitor;
     visitor = test;
     test = null;
   }
 
+  is = convert_1(test);
+
   one(tree, null, []);
 
   // Visit a single node.
   function one(node, index, parents) {
-    var result;
+    var result = [];
+    var subresult;
 
-    if (!test || unistUtilIs(test, node, index, parents[parents.length - 1] || null)) {
-      result = visitor(node, parents);
+    if (!test || is(node, index, parents[parents.length - 1] || null)) {
+      result = toResult(visitor(node, parents));
 
-      if (result === EXIT) {
+      if (result[0] === EXIT) {
         return result
       }
     }
 
-    if (node.children && result !== SKIP) {
-      return all(node.children, parents.concat(node)) === EXIT ? EXIT : result
+    if (node.children && result[0] !== SKIP) {
+      subresult = toResult(all(node.children, parents.concat(node)));
+      return subresult[0] === EXIT ? subresult : result
     }
 
     return result
@@ -1400,20 +1322,30 @@ function visitParents(tree, test, visitor, reverse) {
     var min = -1;
     var step = reverse ? -1 : 1;
     var index = (reverse ? children.length : min) + step;
-    var child;
     var result;
 
     while (index > min && index < children.length) {
-      child = children[index];
-      result = child && one(child, index, parents);
+      result = one(children[index], index, parents);
 
-      if (result === EXIT) {
+      if (result[0] === EXIT) {
         return result
       }
 
-      index = typeof result === 'number' ? result : index + step;
+      index = typeof result[1] === 'number' ? result[1] : index + step;
     }
   }
+}
+
+function toResult(value) {
+  if (value !== null && typeof value === 'object' && 'length' in value) {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    return [CONTINUE, value]
+  }
+
+  return [value]
 }
 
 var unistUtilVisit = visit;
@@ -1444,7 +1376,7 @@ function visit(tree, test, visitor, reverse) {
   }
 }
 
-// Generated by BUCKLESCRIPT VERSION 4.0.5, PLEASE EDIT WITH CARE
+// Generated by BUCKLESCRIPT VERSION 5.0.6, PLEASE EDIT WITH CARE
 
 
 function isAbsolute(path) {
@@ -1555,7 +1487,7 @@ function plugin(ast, config) {
       var match = Curlie_bs.expand(curlie$1, mappings);
       if (match !== undefined) {
         var prefix = curlie$1[0];
-        var bib = belt_Option.getWithDefault(belt_Option.map(js_primitive.undefined_to_opt(db.find((function (record) {
+        var bib = belt_Option.getWithDefault(belt_Option.map(caml_option.undefined_to_opt(db.find((function (record) {
                             return record.id === prefix;
                           }))), bibToString), "");
         node.url = match;

@@ -87,4 +87,4 @@ The `db` option is required. It expects a list of references:
 
 ## License
 
-Arnau Siches under the [MIT License](LICENSE).
+Arnau Siches under the [MIT License](LICENCE).
