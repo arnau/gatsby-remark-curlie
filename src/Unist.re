@@ -1,3 +1,4 @@
+type ast;
 type node = {
   .
   [@bs.set] "type": string,
@@ -6,4 +7,5 @@ type node = {
 };
 
 [@bs.module]
-external visit: (node, string, node => unit) => node = "unist-util-visit";
+external visit: (ast, string, node => option(node)) => node =
+  "unist-util-visit";

@@ -4,130 +4,165 @@ open Expect;
 describe("RemarkCurlie.plugin", () => {
   open RemarkCurlie;
 
-  let config = [%raw {|
+  let config = [%raw
+    {|
     {"db": [
       {"id": "example", "url": "https://example.org/"}
     ]}
-  |}];
+  |}
+  ];
 
   test("baseline", () => {
-    let tree = [%raw {|
+    let tree = [%raw
+      {|
       {
-        "type": "link",
-        "url": "example:foo",
+        "markdownAST": {
+          "type": "link",
+          "url": "example:foo",
+        }
       }
-    |}];
-    let expected = [%raw {|
+    |}
+    ];
+    let expected = [%raw
+      {|
       {
-        "type": "link",
-        "url": "https://example.org/foo",
-        "title": "[example]"
+        "markdownAST": {
+          "type": "link",
+          "url": "https://example.org/foo",
+          "title": "[example]"
+        }
       }
-    |}];
+    |}
+    ];
 
-    expect(plugin(tree, config)) |> toEqual(expected)
+    expect(plugin(tree, config)) |> toEqual(expected);
   });
 
-  /* test("full catalogue entry", () => { */
-  /*   let config = */
-  /*     {"db": */
-  /*       [| */
-  /*         { */
-  /*           "id": "example2", */
-  /*           "url": "https://example.org/", */
-  /*           "title": "Lorem ipsum", */
-  /*           "publisher": "Acme", */
-  /*           "published": "2018", */
-  /*           "authors": [|"A. Siches", "B. East"|] */
-  /*         } */
-  /*       |] */
-  /*   }; */
-  /*   let tree = [%raw {| */
-  /*     { */
-  /*       "type": "link", */
-  /*       "url": "example2:foo", */
-  /*     } */
-  /*   |}]; */
-  /*   let expected = [%raw {| */
-  /*     { */
-  /*       "type": "link", */
-  /*       "url": "https://example.org/foo", */
-  /*       "title": "[example] Lorem ipsum. 2018. A. Siches, B. East. Acme." */
-  /*     } */
-  /*   |}]; */
+  test("full catalogue entry", () => {
+    let config = [%raw
+      {|
+      {"db": [{
+          "id": "example2",
+          "url": "https://example.org/",
+          "title": "Lorem ipsum",
+          "publisher": "Acme",
+          "published": "2018",
+          "authors": ["A. Siches", "B. East"],
+        }]
+      }
+      |}
+    ];
 
-  /*   expect(plugin(tree, config)) |> toEqual(expected) */
-  /* }); */
+    let tree = [%raw
+      {|
+      {
+        "markdownAST": {
+           "type": "link",
+           "url": "example2:foo",
+        }
+       }
+     |}
+    ];
+    let expected = [%raw
+      {|
+       {
+        "markdownAST": {
+           "type": "link",
+           "url": "https://example.org/foo",
+           "title": "[example2] Lorem ipsum. A. Siches, B. East. 2018. Acme."
+         }
+       }
+     |}
+    ];
+
+    expect(plugin(tree, config)) |> toEqual(expected);
+  });
 
   test("bad catalogue throws", () => {
-    let tree = [%raw {|
+    let tree = [%raw
+      {|
       {
+        "markdownAST": {
         "type": "link",
         "url": "foo:bar",
       }
-    |}];
+      }
+    |}
+    ];
 
-    expect(() => plugin(tree, config)) |> toThrow
+    expect(() =>
+      plugin(tree, config)
+    ) |> toThrow;
   });
 
   test("absolute url is untouched", () => {
-    let tree = [%raw {|
+    let tree = [%raw
+      {|
       {
+        "markdownAST": {
         "type": "link",
         "url": "https://example.org/foo",
       }
-    |}];
+      }
+    |}
+    ];
 
-    expect(plugin(tree, config)) |> toEqual(tree)
+    expect(plugin(tree, config)) |> toEqual(tree);
   });
 
   test("absolute url is untouched (no protocol)", () => {
-    let tree = [%raw {|
+    let tree = [%raw
+      {|
       {
+        "markdownAST": {
         "type": "link",
         "url": "/foo",
       }
-    |}];
+      }
+    |}
+    ];
 
-    expect(plugin(tree, config)) |> toEqual(tree)
+    expect(plugin(tree, config)) |> toEqual(tree);
   });
 
   test("relative url is untouched", () => {
-    let tree = [%raw {|
+    let tree = [%raw
+      {|
       {
+        "markdownAST": {
         "type": "link",
         "url": "./foo",
       }
-    |}];
+      }
+    |}
+    ];
 
-    expect(plugin(tree, config)) |> toEqual(tree)
+    expect(plugin(tree, config)) |> toEqual(tree);
   });
-
   /* Jest chokes with this test */
   /* test("ast", () => { */
   /*   let tree = [%raw {| */
-  /*     { */
-  /*       "type": "root", */
-  /*       "children": [ */
-  /*         { */
-  /*           "type": "link", */
-  /*           "url": "example:foo", */
-  /*         } */
-  /*       ] */
-  /*     } */
-  /*   |}]; */
+       /*     { */
+       /*       "type": "root", */
+       /*       "children": [ */
+       /*         { */
+       /*           "type": "link", */
+       /*           "url": "example:foo", */
+       /*         } */
+       /*       ] */
+       /*     } */
+       /*   |}]; */
   /*   let expected = [%raw {| */
-  /*     { */
-  /*       "type": "root", */
-  /*       "children": [ */
-  /*         { */
-  /*           "type": "link", */
-  /*           "url": "https://example.org/foo", */
-  /*         } */
-  /*       ] */
-  /*     } */
-  /*   |}]; */
-
+       /*     { */
+       /*       "type": "root", */
+       /*       "children": [ */
+       /*         { */
+       /*           "type": "link", */
+       /*           "url": "https://example.org/foo", */
+       /*         } */
+       /*       ] */
+       /*     } */
+       /*   |}]; */
   /*   expect(plugin(tree, config)) |> toEqual(expected) */
   /* }); */
 });

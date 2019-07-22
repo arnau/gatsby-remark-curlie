@@ -43,16 +43,16 @@ let bibToString = record => {
 };
 
 /** Gatsby plugin entrypoint */
-let plugin = (ast: Unist.node, config: config('a)): Unist.node => {
+let plugin = (ast, config: config('a)) => {
   let db = config##db;
   let mappings = Js.Array.map(toMapping, db);
 
-  let visitor = (node: Unist.node): unit => {
+  let visitor = (node: Unist.node): option(Unist.node) => {
     let href = node##url;
     let curlie = Curlie.fromString(href);
 
     switch (curlie) {
-    | None => ()
+    | None => None
     | Some(curlie) =>
       switch (Curlie.expand(curlie, mappings)) {
       | None =>
@@ -68,11 +68,12 @@ let plugin = (ast: Unist.node, config: config('a)): Unist.node => {
 
         node##url #= url;
         node##title #= bib;
+
+        Some(node);
       }
     };
   };
 
-  Unist.visit(ast, "link", visitor) |> ignore;
-
+  Unist.visit(ast##markdownAST, "link", visitor) |> ignore;
   ast;
 };

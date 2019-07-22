@@ -2,10 +2,10 @@ import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 
 export default {
-  input: 'index.js',
+  input: 'input.js',
   output: {
     // dir: 'dist',
-    file: 'bundle.js',
+    file: 'index.js',
     format: 'cjs'
   },
   plugins: [
