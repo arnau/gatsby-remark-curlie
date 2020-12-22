@@ -47,7 +47,7 @@ let fromString = (input: string): option(t) => {
 let join = (surl: string, path: string): string => {
   open Webapi;
 
-  let url = Url.makeWithBase(path, surl);
+  let url = Url.makeWith(path, ~base=surl);
 
   Url.href(url);
 };

@@ -25,11 +25,11 @@
     "gatsby": "^2.0.0"
   },
   "devDependencies": {
-    "@glennsl/bs-jest": "^0.5.1",
-    "bs-platform": "^8.0.2",
+    "@glennsl/bs-jest": "^0.6.0",
+    "bs-platform": "^8.4.2",
     "nyc": "^15.1.0",
-    "rollup": "^2.22.0",
-    "@rollup/plugin-commonjs": "^15.0.1",
+    "rollup": "^2.35.0",
+    "@rollup/plugin-commonjs": "^17.0.0",
     "rollup-plugin-node-resolve": "^5.2.0"
   },
   "dependencies": {
